@@ -194,6 +194,45 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Функция создания денежного элемента
+  function createMoney() {
+    const money = document.createElement("div");
+    money.className = "money";
+    money.textContent = "$";
+
+    // Случайная позиция по горизонтали
+    const xPos = Math.random() * window.innerWidth;
+    money.style.left = `${xPos}px`;
+    money.style.top = "-30px";
+
+    // Случайная скорость падения (2-5 секунд)
+    const duration = Math.random() * 3 + 2;
+    money.style.animationDuration = `${duration}s`;
+
+    // Случайный размер
+    const size = Math.random() * 10 + 15;
+    money.style.fontSize = `${size}px`;
+
+    // Случайный цвет (зеленые оттенки)
+    const greenValue = Math.floor(Math.random() * 155 + 100);
+    money.style.color = `rgb(50, ${greenValue}, 50)`;
+
+    document.body.appendChild(money);
+
+    // Удаляем элемент после завершения анимации
+    money.addEventListener("animationend", function () {
+      money.remove();
+    });
+  }
+
+  // Запускаем создание денег каждые 100мс
+  setInterval(createMoney, 100);
+
+  // Создаем начальные деньги
+  for (let i = 0; i < 20; i++) {
+    setTimeout(() => createMoney(), Math.random() * 2000);
+  }
+
   // Update SOL price when received
   window.updateSOLPrice = function (price) {
     solPrice = price;
