@@ -1,41 +1,68 @@
 let solPrice = 160; // Начальная цена
 
-// Функция для обновления цены SOL
+// Функция для получения цены из localStorage
+function getSavedSolPrice() {
+  const savedPrice = localStorage.getItem("solPrice");
+  return savedPrice ? parseFloat(savedPrice) : null;
+}
+
+// Функция для сохранения цены в localStorage
+function saveSolPrice(price) {
+  localStorage.setItem("solPrice", price.toString());
+  solPrice = price;
+}
+
+// Основная функция обновления
 function updateSOLPrice() {
-  // 1. Сначала получаем реальную цену с CoinGecko
   fetch(
     "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd"
   )
     .then((response) => response.json())
     .then((data) => {
-      const apiPrice = data.solana.usd;
+      if (data && data.solana && data.solana.usd) {
+        const apiPrice = data.solana.usd;
+        const change = (Math.random() - 0.5) * 2; // Уменьшил колебания
+        const newPrice = Math.max(100, apiPrice + change);
 
-      // 2. Добавляем случайные колебания к реальной цене
-      const change = (Math.random() - 0.5) * 10;
-      solPrice = Math.max(100, apiPrice + change);
-
-      // 3. Обновляем интерфейс
-      if (typeof window.updateSOLPrice === "function") {
-        window.updateSOLPrice(solPrice);
+        saveSolPrice(newPrice);
+        updateUI(newPrice);
       }
-
-      // 4. Планируем следующее обновление через 30 секунд
-      setTimeout(updateSOLPrice, 30000);
     })
     .catch((error) => {
-      console.error("Error fetching SOL price:", error);
-
-      // Если API не доступно, используем локальное значение с колебаниями
-      const change = (Math.random() - 0.5) * 10;
-      solPrice = Math.max(100, solPrice + change);
-
-      if (typeof window.updateSOLPrice === "function") {
-        window.updateSOLPrice(solPrice);
+      console.error("API Error:", error);
+      const savedPrice = getSavedSolPrice();
+      if (savedPrice) {
+        // Используем сохраненное значение с небольшими колебаниями
+        const change = (Math.random() - 0.5) * 1; // Минимальные колебания
+        const newPrice = Math.max(100, savedPrice + change);
+        updateUI(newPrice);
+      } else {
+        // Если нет сохраненного значения, используем начальное
+        updateUI(solPrice);
       }
-
-      setTimeout(updateSOLPrice, 30000);
+    })
+    .finally(() => {
+      // Всегда планируем следующее обновление через 30 секунд
+      setTimeout(updateSOLPrice, 900000);
     });
 }
 
-// Первоначальный вызов
-updateSOLPrice();
+// Функция обновления интерфейса
+function updateUI(price) {
+  if (typeof window.updateSOLPrice === "function") {
+    window.updateSOLPrice(price);
+  }
+  document.getElementById(
+    "sol-price-display"
+  ).textContent = `1 SOL = $${price.toFixed(2)}`;
+}
+
+// Инициализация
+document.addEventListener("DOMContentLoaded", () => {
+  const savedPrice = getSavedSolPrice();
+  if (savedPrice) {
+    solPrice = savedPrice;
+    updateUI(solPrice);
+  }
+  updateSOLPrice(); // Первый запрос
+});
