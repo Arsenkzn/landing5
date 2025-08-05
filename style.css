@@ -2,7 +2,6 @@ body {
   font-family: "Space Grotesk", sans-serif;
   background-image: url("images/products/background.png");
   height: 100vh;
-  overflow: hidden;
   background-color: #ffffff;
   color: #2d3748;
   margin: 0;
@@ -12,7 +11,7 @@ body {
 }
 
 .money {
-  position: absolute;
+  position: fixed;
   color: #2ecc71;
   font-size: 20px;
   font-weight: bold;
@@ -250,7 +249,7 @@ body {
 
 /* Каталог товаров */
 .catalog-container {
-  margin-left: 320px;
+  margin-left: 370px;
   padding: 3rem;
   width: calc(100% - 320px);
 }
